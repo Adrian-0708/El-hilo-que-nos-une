@@ -1,29 +1,55 @@
 /* =========================================================
-   Jersey Fest — interacciones visuales (solo UI).
-   La lógica real (guardar, votar) la hace Spring Boot.
+   El hilo que nos une — interacciones visuales (solo UI).
+   La lógica real (guardar, votar, sesión) la hace Spring Boot.
    ========================================================= */
 (function () {
   "use strict";
 
+  const root = document.documentElement;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // Modo ligero (lo decide el script del <head>): menos partículas y 30 fps
-  const lite = document.documentElement.classList.contains("lite");
-  const K = lite ? 2 : 1; // compensa la velocidad al ir a la mitad de fps
+  const isStatic = location.protocol === "file:";
 
-  // Bucle de animación con límite de fps, se puede parar y reanudar
-  const makeLoop = (fn, fps) => {
-    const interval = 1000 / fps;
-    let id = 0, last = 0, running = false;
+  /* =========================================================
+     NIVEL DE CALIDAD
+     0 completo · 1 ligero (.lite) · 2 mínimo (.lite.min)
+     El <head> elige el nivel inicial; aquí se baja si va lento.
+     ========================================================= */
+  const tier = () => (root.classList.contains("min") ? 2 : root.classList.contains("lite") ? 1 : 0);
+  const tierListeners = [];
+  const onTier = (fn) => tierListeners.push(fn);
+  const degrade = () => {
+    if (tier() === 0) root.classList.add("lite");
+    else root.classList.add("lite", "min");
+    tierListeners.forEach((fn) => fn(tier()));
+  };
+
+  /* Bucle con límite de fps. fn(k) recibe k = fotogramas de 60 fps transcurridos,
+     así la velocidad es la misma vaya a 60, 30 o 20 fps. */
+  const makeLoop = (fn) => {
+    let id = 0, last = 0;
+    const loop = {
+      fps: 60,
+      running: false,
+      start() {
+        if (loop.running) return;
+        loop.running = true;
+        last = 0;
+        id = requestAnimationFrame(tick);
+      },
+      stop() {
+        loop.running = false;
+        cancelAnimationFrame(id);
+      }
+    };
     const tick = (t) => {
+      if (!loop.running) return;
       id = requestAnimationFrame(tick);
-      if (t - last < interval - 2) return;
+      if (last && t - last < 1000 / loop.fps - 2) return;
+      const k = last ? Math.min((t - last) / 16.67, 3) : 1;
       last = t;
-      fn();
+      fn(k);
     };
-    return {
-      start() { if (!running) { running = true; id = requestAnimationFrame(tick); } },
-      stop()  { running = false; cancelAnimationFrame(id); }
-    };
+    return loop;
   };
 
   const debounce = (fn, ms) => {
@@ -31,65 +57,134 @@
     return () => { clearTimeout(t); t = setTimeout(fn, ms); };
   };
 
+  /* Medidor de fluidez: si los fotogramas tardan demasiado, baja un nivel */
+  if (!reduceMotion && tier() < 2) {
+    let frames = 0, slow = 0, start = 0, last = 0;
+    const sample = (t) => {
+      if (!start) { start = last = t; frames = 0; slow = 0; requestAnimationFrame(sample); return; }
+      const dt = t - last;
+      last = t;
+      frames++;
+      if (dt > 40) slow++;
+      if (frames < 60) { requestAnimationFrame(sample); return; }
+      const avg = (t - start) / frames;
+      start = 0;
+      if (avg > 24 || slow > 8) degrade();
+      // Se sigue vigilando de vez en cuando mientras quede nivel que bajar
+      if (tier() < 2) setTimeout(() => requestAnimationFrame(sample), avg > 24 || slow > 8 ? 800 : 5000);
+    };
+    setTimeout(() => requestAnimationFrame(sample), 1200);
+  }
+
   /* ---------- Guirnalda de luces ---------- */
   const lights = document.querySelector(".lights");
   if (lights) {
     const build = () => {
-      lights.innerHTML = "";
-      const count = Math.max(10, Math.floor(window.innerWidth / (lite ? 60 : 42)));
+      const count = Math.max(8, Math.floor(window.innerWidth / [42, 60, 70][tier()]));
+      if (lights.childElementCount === count) return;
+      const frag = document.createDocumentFragment();
       for (let i = 0; i < count; i++) {
         const li = document.createElement("li");
-        li.style.setProperty("--delay", (Math.random() * 1.8).toFixed(2) + "s");
-        lights.appendChild(li);
+        li.style.setProperty("--delay", (Math.random() * 2.6).toFixed(2) + "s");
+        frag.appendChild(li);
       }
+      lights.replaceChildren(frag);
     };
     build();
-    let t;
-    window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(build, 200); });
+    window.addEventListener("resize", debounce(build, 200));
+    onTier(build);
   }
 
-  /* ---------- Nieve ---------- */
+  /* ---------- Nieve a pantalla completa (solo nivel completo) ---------- */
   const canvas = document.getElementById("snow");
-  if (canvas && !reduceMotion) {
-    const ctx = canvas.getContext("2d");
-    let w, h, flakes;
+  if (canvas) {
+    if (reduceMotion || tier() > 0) {
+      canvas.remove();
+    } else {
+      const ctx = canvas.getContext("2d");
+      let w = 0, h = 0, flakes = [];
 
-    const resize = () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-      const n = lite ? Math.min(45, Math.floor(w / 14)) : Math.min(140, Math.floor(w / 10));
-      flakes = Array.from({ length: n }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: Math.random() * 2.4 + 0.6,
-        s: Math.random() * 0.7 + 0.3,
-        d: Math.random() * Math.PI * 2,
-        o: Math.random() * 0.5 + 0.35
-      }));
+      const resize = () => {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+        const n = Math.min(120, Math.floor(w / 12));
+        flakes = Array.from({ length: n }, () => ({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 2.2 + 0.6,
+          s: Math.random() * 0.7 + 0.3,
+          d: Math.random() * Math.PI * 2,
+          o: Math.random() * 0.5 + 0.35
+        }));
+      };
+
+      const draw = (k) => {
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = "#fff";
+        for (const f of flakes) {
+          f.y += f.s * k;
+          f.d += 0.01 * k;
+          f.x += Math.sin(f.d) * 0.4 * k;
+          if (f.y > h + 5) { f.y = -5; f.x = Math.random() * w; }
+          ctx.globalAlpha = f.o;
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      };
+
+      resize();
+      const snowLoop = makeLoop(draw);
+      snowLoop.start();
+      window.addEventListener("resize", debounce(resize, 150));
+      onTier(() => { snowLoop.stop(); canvas.remove(); });
+    }
+  }
+
+  /* ---------- La bola: balanceo y giro 3D ----------
+     Solo nivel completo. Sin ratón gira despacio sola; con ratón encima
+     se inclina hacia él. En .lite / .min o movimiento reducido queda quieta.
+     Fuera de pantalla no gasta nada. */
+  const orn = document.querySelector("[data-ornament]");
+  const ornBody = orn && orn.querySelector(".ornament__body");
+  if (ornBody) {
+    const VARS = ["--rx", "--ry", "--px", "--py"];
+    let mx = 0, my = 0, hover = false, cx = 0, cy = 0, visible = true;
+    const t0 = performance.now();
+
+    const frame = (k) => {
+      const t = (performance.now() - t0) / 1000;
+      const tx = hover ? mx : Math.sin(t * 0.55) * 0.6;
+      const ty = hover ? my : Math.sin(t * 0.4 + 1) * 0.3;
+      const ease = 1 - Math.pow(0.94, k);
+      cx += (tx - cx) * ease;
+      cy += (ty - cy) * ease;
+      ornBody.style.setProperty("--ry", (cx * 18).toFixed(2) + "deg");
+      ornBody.style.setProperty("--rx", (-cy * 18).toFixed(2) + "deg");
+      ornBody.style.setProperty("--px", (cx * 14).toFixed(1) + "px");
+      ornBody.style.setProperty("--py", (cy * 14).toFixed(1) + "px");
     };
+    const ornLoop = makeLoop(frame);
 
-    const draw = () => {
-      ctx.clearRect(0, 0, w, h);
-      for (const f of flakes) {
-        f.y += f.s * K;
-        f.d += 0.01 * K;
-        f.x += Math.sin(f.d) * 0.4 * K;
-        if (f.y > h + 5) { f.y = -5; f.x = Math.random() * w; }
-        ctx.globalAlpha = f.o;
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
+    const update = () => {
+      if (!reduceMotion && visible && tier() === 0) ornLoop.start();
+      else { ornLoop.stop(); VARS.forEach((p) => ornBody.style.removeProperty(p)); }
     };
+    update();
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([e]) => { visible = e.isIntersecting; update(); }).observe(orn);
+    }
+    onTier(update);
 
-    resize();
-    ctx.fillStyle = "#fff";
-    const snowLoop = makeLoop(draw, lite ? 30 : 60);
-    snowLoop.start();
-    window.addEventListener("resize", debounce(() => { resize(); ctx.fillStyle = "#fff"; }, 150));
-  } else if (canvas) {
-    canvas.remove();
+    orn.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      const r = orn.getBoundingClientRect();
+      mx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
+      my = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2));
+      hover = true;
+    });
+    orn.addEventListener("pointerleave", () => { hover = false; });
   }
 
   /* ---------- Menú móvil ---------- */
@@ -102,22 +197,23 @@
     });
   }
 
-  /* ---------- Aparición al hacer scroll ---------- */
+  /* ---------- Aparición al hacer scroll (solo nivel completo) ---------- */
   const reveals = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window) {
+  const showAll = () => reveals.forEach((el) => el.classList.add("is-visible"));
+  if (tier() > 0 || !("IntersectionObserver" in window)) {
+    showAll();
+  } else {
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); }
       });
     }, { threshold: 0.12 });
     reveals.forEach((el) => io.observe(el));
-  } else {
-    reveals.forEach((el) => el.classList.add("is-visible"));
+    onTier(() => { io.disconnect(); showAll(); });
   }
 
   /* ---------- Cuenta atrás (fecha en data-countdown, formato ISO) ---------- */
-  const cd = document.querySelector("[data-countdown]");
-  if (cd) {
+  document.querySelectorAll("[data-countdown]").forEach((cd) => {
     const target = new Date(cd.dataset.countdown);
     const els = {
       d: cd.querySelector("[data-d]"),
@@ -139,12 +235,11 @@
     };
     tick();
     setInterval(tick, 1000);
-  }
+  });
 
   /* ---------- Botón votar (efecto visual) ----------
      Con Spring el botón envía el formulario (POST).
      Abierto como archivo local, solo se simula el voto. */
-  const isStatic = location.protocol === "file:";
   document.querySelectorAll(".vote-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       btn.classList.remove("pop");
@@ -162,6 +257,75 @@
       }
     });
   });
+
+  /* ---------- Visor de jersey: delante y detrás en grande ----------
+     Con Spring, la tarjeta trae data-delante y data-detras (URLs de las fotos).
+     Sin ellas (tarjetas de muestra) se usa el dibujo del jersey y su espalda. */
+  const viewer = document.getElementById("viewer");
+  if (viewer) {
+    const title = viewer.querySelector(".viewer__title");
+    const author = viewer.querySelector(".viewer__author");
+    const sides = viewer.querySelectorAll(".viewer__media");
+    const actions = viewer.querySelector(".viewer__actions");
+
+    /* Votar desde el visor: el botón del visor pulsa el de la tarjeta
+       (mismo formulario POST, mismo aviso de login) y copia su estado. */
+    const fillActions = (card) => {
+      if (!actions) return;
+      actions.replaceChildren();
+      let cardBtn = card.querySelector(".vote-btn");
+      if (cardBtn && cardBtn.closest("[hidden]")) cardBtn = null; // votación cerrada
+      const votes = card.querySelector(".card__votes");
+      if (!cardBtn) {
+        const lock = card.querySelector(".vote-lock");
+        if (lock) actions.appendChild(lock.cloneNode(true));
+        return;
+      }
+      const votesCopy = votes ? votes.cloneNode(true) : null;
+      const btn = cardBtn.cloneNode(true);
+      btn.type = "button";
+      const sync = () => {
+        btn.className = cardBtn.className;
+        btn.innerHTML = cardBtn.innerHTML;
+        if (votesCopy) votesCopy.innerHTML = votes.innerHTML;
+      };
+      btn.addEventListener("click", () => {
+        cardBtn.click();
+        setTimeout(sync, 0);
+      });
+      if (votesCopy) actions.appendChild(votesCopy);
+      actions.appendChild(btn);
+    };
+
+    document.addEventListener("click", (e) => {
+      const open = e.target.closest(".card__open");
+      if (!open) return;
+      const card = open.closest(".card");
+      title.textContent = card.querySelector(".card__title")?.textContent.trim() || "Jersey";
+      author.textContent = card.querySelector(".card__author")?.textContent.trim() || "";
+      sides.forEach((box) => {
+        const side = box.dataset.side;
+        box.style.setProperty("--card-bg", open.style.getPropertyValue("--card-bg"));
+        const url = card.dataset[side];
+        if (url) {
+          const img = document.createElement("img");
+          img.src = url;
+          img.alt = title.textContent + " · " + (side === "delante" ? "delante" : "detrás");
+          img.decoding = "async";
+          box.replaceChildren(img);
+        } else {
+          const svg = open.querySelector("svg")?.cloneNode(true);
+          if (svg && side === "detras") svg.querySelector("use")?.setAttribute("href", "#sweater-back");
+          box.replaceChildren(...(svg ? [svg] : []));
+        }
+      });
+      fillActions(card);
+      viewer.showModal();
+    });
+    viewer.addEventListener("click", (e) => {
+      if (e.target === viewer || e.target.closest("[data-close-viewer]")) viewer.close();
+    });
+  }
 
   /* ---------- Filtros (solo estado visual) ---------- */
   document.querySelectorAll(".chips").forEach((group) => {
@@ -186,12 +350,10 @@
     });
   }
 
-  /* ---------- Subida: arrastrar y vista previa ---------- */
-  const dz = document.querySelector(".dropzone");
-  if (dz) {
+  /* ---------- Subida: arrastrar y vista previa (una por cada zona) ---------- */
+  document.querySelectorAll(".dropzone").forEach((dz) => {
     const input = dz.querySelector('input[type="file"]');
-    const fileLabel = dz.querySelector(".dropzone__file");
-    const previewMedia = document.querySelector("[data-preview-media]");
+    const badge = dz.querySelector(".dropzone__badge");
 
     ["dragenter", "dragover"].forEach((ev) =>
       dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add("is-drag"); }));
@@ -200,192 +362,21 @@
 
     input.addEventListener("change", () => {
       const file = input.files[0];
-      if (!file) return;
-      if (fileLabel) fileLabel.textContent = file.name;
-      if (previewMedia && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          previewMedia.innerHTML = "";
-          const img = document.createElement("img");
-          img.src = reader.result;
-          img.alt = "Vista previa del jersey";
-          previewMedia.appendChild(img);
-        };
-        reader.readAsDataURL(file);
+      dz.querySelector(".dropzone__preview")?.remove();
+      dz.classList.toggle("has-file", !!file);
+      if (badge) badge.textContent = file ? file.name : "";
+      if (file && file.type.startsWith("image/")) {
+        // URL temporal: no carga la imagen entera en memoria como texto
+        const img = document.createElement("img");
+        img.className = "dropzone__preview";
+        img.src = URL.createObjectURL(file);
+        img.alt = "";
+        img.decoding = "async";
+        img.onload = () => URL.revokeObjectURL(img.src);
+        dz.appendChild(img);
       }
     });
-  }
-
-  /* Texto de la vista previa en vivo */
-  document.querySelectorAll("[data-bind]").forEach((field) => {
-    const target = document.querySelector('[data-bound="' + field.dataset.bind + '"]');
-    if (!target) return;
-    const fallback = target.textContent;
-    const update = () => {
-      const v = field.tagName === "SELECT"
-        ? field.options[field.selectedIndex].text
-        : field.value.trim();
-      target.textContent = v || fallback;
-    };
-    field.addEventListener("input", update);
-    field.addEventListener("change", update);
   });
-
-  /* =========================================================
-     LA BOLA: purpurina, bola de nieve, anillo de luces,
-     inclinación 3D con el ratón y "agitar" al pulsar
-     ========================================================= */
-  const orn = document.querySelector("[data-ornament]");
-  if (orn) {
-    const NS = "http://www.w3.org/2000/svg";
-    const tilt = orn.querySelector(".ornament__tilt");
-    const ball = orn.querySelector(".ornament__ball");
-    const glitter = orn.querySelector(".glitter");
-    const snowCv = orn.querySelector(".ornament__snow");
-
-    // Purpurina dentro del cristal
-    if (glitter) {
-      const G = lite ? 28 : 90;
-      for (let i = 0; i < G; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const r = Math.sqrt(Math.random()) * 190;
-        const c = document.createElementNS(NS, "circle");
-        c.setAttribute("cx", (200 + Math.cos(a) * r).toFixed(1));
-        c.setAttribute("cy", (200 + Math.sin(a) * r).toFixed(1));
-        c.setAttribute("r", (Math.random() * 1.6 + 0.6).toFixed(1));
-        c.setAttribute("fill", Math.random() < 0.3 ? "#ffc83d" : "#ffffff");
-        c.style.setProperty("--d", (Math.random() * 2.4).toFixed(2) + "s");
-        glitter.appendChild(c);
-      }
-    }
-
-    // Anillo de luces (las de delante tapan la bola, las de detrás quedan ocultas)
-    const N = lite ? 10 : 16;
-    const bulbs = [];
-    for (let i = 0; i < N; i++) {
-      const b = document.createElement("span");
-      b.className = "orb-bulb";
-      tilt.appendChild(b);
-      bulbs.push(b);
-    }
-    const T = (-14 * Math.PI) / 180, cosT = Math.cos(T), sinT = Math.sin(T);
-    let angle = 0, boost = 0, S = tilt.offsetWidth;
-    const placeBulbs = () => {
-      const RX = S * 0.68, RY = S * 0.15;
-      bulbs.forEach((b, i) => {
-        const t = angle + (i / N) * Math.PI * 2;
-        const x = RX * Math.cos(t), y = RY * Math.sin(t);
-        const depth = Math.sin(t); // >0 delante, <0 detrás
-        const s = 0.7 + (depth + 1) * 0.25;
-        b.style.transform = "translate(" + (x * cosT - y * sinT).toFixed(1) + "px," +
-          (x * sinT + y * cosT).toFixed(1) + "px) scale(" + s.toFixed(2) + ")";
-        b.style.zIndex = depth > 0 ? 7 : 1;
-        b.style.opacity = (0.5 + (depth + 1) * 0.25).toFixed(2);
-      });
-    };
-
-    // Bola de nieve interior
-    const ctx = snowCv.getContext("2d");
-    let W = 0, H = 0;
-    const sizeSnow = () => {
-      const dpr = lite ? 1 : Math.min(2, window.devicePixelRatio || 1);
-      S = tilt.offsetWidth;
-      W = ball.offsetWidth; H = ball.offsetHeight;
-      snowCv.width = W * dpr; snowCv.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      placeBulbs();
-    };
-    sizeSnow();
-    window.addEventListener("resize", debounce(sizeSnow, 150));
-    const flakes = Array.from({ length: lite ? 35 : 75 }, () => {
-      const max = Math.random() * 0.45 + 0.2;
-      return { x: Math.random() * W, y: Math.random() * H, vx: 0, vy: max, max,
-               r: Math.random() * 2 + 0.8, ph: Math.random() * 6.28 };
-    });
-    const stepSnow = () => {
-      ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = "rgba(255,255,255,0.85)";
-      for (const f of flakes) {
-        f.ph += 0.02 * K;
-        f.vy = Math.min(f.vy + 0.02 * K, f.max);
-        f.vx *= lite ? 0.92 : 0.96;
-        f.x += (f.vx + Math.sin(f.ph) * 0.25) * K;
-        f.y += f.vy * K;
-        if (f.y > H + 4) { f.y = -4; f.x = Math.random() * W; }
-        if (f.y < -40) f.y = -40;
-        if (f.x < -4) f.x = W + 4;
-        if (f.x > W + 4) f.x = -4;
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    };
-
-    const frame = () => {
-      angle += (0.008 + boost) * K;
-      boost *= lite ? 0.92 : 0.96;
-      placeBulbs();
-      stepSnow();
-    };
-    const orbLoop = makeLoop(frame, lite ? 30 : 60);
-    if (reduceMotion) {
-      placeBulbs(); stepSnow();
-    } else if ("IntersectionObserver" in window) {
-      // Solo se anima mientras la bola está en pantalla
-      new IntersectionObserver(([e]) => { e.isIntersecting ? orbLoop.start() : orbLoop.stop(); })
-        .observe(orn);
-    } else {
-      orbLoop.start();
-    }
-
-    // Inclinación 3D siguiendo el ratón
-    orn.addEventListener("pointermove", (e) => {
-      if (e.pointerType !== "mouse") return;
-      const r = orn.getBoundingClientRect();
-      const dx = ((e.clientX - r.left) / r.width - 0.5) * 2;
-      const dy = ((e.clientY - r.top) / r.height - 0.5) * 2;
-      tilt.style.setProperty("--ry", (dx * 14).toFixed(1) + "deg");
-      tilt.style.setProperty("--rx", (-dy * 14).toFixed(1) + "deg");
-      tilt.style.setProperty("--gx", (-dx * 12).toFixed(1) + "px");
-      tilt.style.setProperty("--gy", (-dy * 12).toFixed(1) + "px");
-    });
-    orn.addEventListener("pointerleave", () => {
-      ["--rx", "--ry", "--gx", "--gy"].forEach((p) => tilt.style.removeProperty(p));
-    });
-
-    // Agitar: tambaleo + ventisca interior + estallido de estrellas
-    const colors = ["#ffc83d", "#e5384f", "#2fb36f", "#4cc3ef", "#fff8ee"];
-    const shake = (x, y) => {
-      tilt.classList.remove("is-shaken");
-      void tilt.offsetWidth;
-      tilt.classList.add("is-shaken");
-      flakes.forEach((f) => { f.vx = (Math.random() - 0.5) * 9; f.vy = -(Math.random() * 5 + 1.5); });
-      boost = 0.12;
-      if (reduceMotion) { stepSnow(); return; }
-      for (let i = 0; i < 18; i++) {
-        const s = document.createElementNS(NS, "svg");
-        s.setAttribute("viewBox", "0 0 24 24");
-        s.setAttribute("class", "burst");
-        s.innerHTML = '<use href="#star"/>';
-        const a = Math.random() * Math.PI * 2, d = 90 + Math.random() * 150;
-        s.style.cssText = "--x:" + x + "px;--y:" + y + "px;--s:" + (10 + Math.random() * 20).toFixed(0) +
-          "px;--c:" + colors[i % colors.length] + ";--tx:" + (Math.cos(a) * d).toFixed(0) +
-          "px;--ty:" + (Math.sin(a) * d).toFixed(0) + "px";
-        orn.appendChild(s);
-        s.addEventListener("animationend", () => s.remove());
-      }
-    };
-    orn.addEventListener("click", (e) => {
-      const r = orn.getBoundingClientRect();
-      shake(e.clientX - r.left, e.clientY - r.top);
-    });
-    orn.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter" && e.key !== " ") return;
-      e.preventDefault();
-      const b = ball.getBoundingClientRect(), r = orn.getBoundingClientRect();
-      shake(b.left - r.left + b.width / 2, b.top - r.top + b.height / 2);
-    });
-  }
 
   /* =========================================================
      VENTANA LOGIN / REGISTRO
@@ -426,6 +417,29 @@
     // Spring puede pedir que se abra sola (p. ej. tras un login fallido)
     if (dlg.dataset.autoOpen) { setTab(dlg.dataset.autoOpen); dlg.showModal(); }
   }
+
+  /* ---------- Acciones que piden sesión (subir y votar) ----------
+     Formularios con data-requires-auth="mensaje": sin sesión, al intentar
+     elegir una foto, soltarla o enviar, se abre el login con ese mensaje.
+     Con Spring, <body data-logged> lo pone Thymeleaf (${usuario != null}). */
+  const isLogged = () => document.body.dataset.logged === "true";
+  const askLogin = (form) => {
+    if (!dlg) return;
+    setTab("login");
+    const sub = dlg.querySelector(".auth__sub");
+    if (sub && form.dataset.requiresAuth) sub.textContent = form.dataset.requiresAuth;
+    if (!dlg.open) dlg.showModal();
+  };
+  const guard = (e) => {
+    if (isLogged()) return;
+    const form = e.target.closest && e.target.closest("form[data-requires-auth]");
+    if (!form) return;
+    if (e.type === "click" && !e.target.closest('.dropzone, [type="submit"]')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    askLogin(form);
+  };
+  ["click", "drop", "submit"].forEach((ev) => document.addEventListener(ev, guard, true));
 
   /* Mostrar / ocultar contraseña */
   document.querySelectorAll("[data-toggle-pw]").forEach((btn) => {
@@ -470,6 +484,7 @@
     const read = () => { try { return localStorage.getItem(KEY) === "1"; } catch (_) { return false; } };
     const write = (v) => { try { v ? localStorage.setItem(KEY, "1") : localStorage.removeItem(KEY); } catch (_) {} };
     const apply = (logged) => {
+      document.body.dataset.logged = String(logged);
       document.querySelectorAll('[data-auth="anon"]').forEach((el) => { el.hidden = logged; });
       document.querySelectorAll('[data-auth="user"]').forEach((el) => { el.hidden = !logged; });
     };
