@@ -84,8 +84,8 @@ Jerseys-Navidad/
 │   └── img/
 │       ├── logo.png                    # Logo del concurso a color (cabecera, ventana de entrar)
 │       ├── logo-icono.png              # Solo el icono (cabeceras de página, galería vacía)
-│       ├── logo-blanco.png             # Versión blanca (para fondos oscuros)
-│       ├── logo-negro.png              # Versión negra
+│       ├── logo-blanco.png             # Versión blanca, para fondos oscuros (aún sin uso)
+│       ├── logo-negro.png              # Versión negra (aún sin uso)
 │       ├── favicon.png
 │       ├── logo-victoria.png           # Logo de Victoria FP (pie)
 │       ├── guirnalda.svg               # Guirnalda de los márgenes
@@ -210,6 +210,7 @@ Los jerséis **no tienen nombre**: se identifican por su nº (`id`). Una cuenta 
 - [ ] Controlar que haya un único voto por persona
 - [ ] Añadir el flyer a la portada
 - [ ] Decidir si el registro pide teléfono (las bases lo exigen para inscribirse)
+- [ ] Decidir qué foto se ve en la galería: la candidatura sube dos (`fotoDelantera` y `fotoTrasera`), pero `votar.html` solo muestra una (`imagenDelanteraUrl`)
 
 ---
 
