@@ -270,6 +270,159 @@
     });
   }
 
+  /* ---------- Repetir contraseña: avisa si no coincide ---------- */
+  document.querySelectorAll('input[name="password2"]').forEach((pw2) => {
+    const pw = pw2.form && pw2.form.querySelector('input[name="password"]');
+    if (!pw) return;
+    const check = () => pw2.setCustomValidity(pw2.value && pw2.value !== pw.value ? "Las contraseñas no coinciden." : "");
+    pw.addEventListener("input", check);
+    pw2.addEventListener("input", check);
+  });
+
+  /* ---------- Verificar cuenta / recuperar contraseña (vista sin Spring) ----------
+     Con Spring, el servidor decide qué bloque se ve (${verificada}, ${enviado}, ${cambiada}).
+     Sin servidor, al enviar el formulario se muestra directamente el mensaje de éxito. */
+  if (isStatic) {
+    document.querySelectorAll("form[data-demo-ok]").forEach((f) => {
+      f.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const box = f.closest("[data-states]");
+        if (!box) return;
+        box.querySelector('[data-state="form"]').hidden = true;
+        box.querySelector('[data-state="ok"]').hidden = false;
+      });
+    });
+  }
+
+  /* =========================================================
+     ADMINISTRACIÓN
+     ========================================================= */
+
+  /* Ganadores: se eligen con los botones «Premiar como» de cada tarjeta.
+     Los botones son radios (uno por categoría) unidos al formulario con form="f-ganadores".
+     Arriba se ven las 4 categorías con la foto y el participante elegidos.
+     Regla de las bases: cada participante (no cada jersey) solo puede ganar una categoría. */
+  const winnersForm = document.querySelector("form[data-winners]");
+  const CATS = { navideno: "El más navideño", creativo: "El más creativo u original",
+                 extravagante: "El más extravagante", publico: "El favorito del público" };
+  const SHORT = { navideno: "Navideño", creativo: "Creativo", extravagante: "Extravagante", publico: "Público" };
+  const winnerRadios = () => [...document.querySelectorAll('input[type="radio"][form="f-ganadores"]')];
+
+  const conflicts = () => {
+    const byAutor = {};
+    winnerRadios().filter((r) => r.checked).forEach((r) => {
+      const card = r.closest("[data-row]");
+      const id = card.dataset.autorId || card.dataset.autor;
+      (byAutor[id] = byAutor[id] || { autor: card.dataset.autor, cats: [] }).cats.push(CATS[r.name]);
+    });
+    return Object.values(byAutor).filter((a) => a.cats.length > 1);
+  };
+
+  const refreshWinners = () => {
+    if (!winnersForm) return;
+    document.querySelectorAll("[data-row]").forEach((card) => {
+      const badges = card.querySelector("[data-badges]");
+      const won = [...card.querySelectorAll('input[form="f-ganadores"]:checked')].map((r) => r.name);
+      card.classList.toggle("is-winner", won.length > 0);
+      if (badges) badges.replaceChildren(...won.map((k) => {
+        const b = document.createElement("span");
+        b.className = "ajersey__badge ajersey__badge--" + k;
+        b.textContent = SHORT[k];
+        return b;
+      }));
+    });
+    Object.keys(CATS).forEach((key) => {
+      const slot = document.querySelector(`[data-slot="${key}"]`);
+      if (!slot) return;
+      const r = winnerRadios().find((x) => x.name === key && x.checked);
+      const card = r && r.closest("[data-row]");
+      const img = slot.querySelector("[data-slot-img]");
+      slot.classList.toggle("is-set", !!card);
+      slot.querySelector("[data-slot-name]").textContent = card ? card.dataset.autor : "Sin elegir";
+      slot.querySelector("[data-slot-meta]").textContent = card
+        ? `Jersey nº ${card.dataset.id} · ${card.querySelector("[data-fecha]")?.textContent.trim() || ""}` : "";
+      img.hidden = !card;
+      if (card) img.src = card.querySelector("[data-front]").src;
+    });
+    const warn = document.querySelector("[data-winner-warning]");
+    const bad = conflicts();
+    if (warn) {
+      warn.hidden = !bad.length;
+      warn.querySelector("span").textContent = bad
+        .map((a) => `${a.autor} gana ${a.cats.length} categorías (${a.cats.join(", ")}). Cada participante solo puede ganar una.`)
+        .join(" ");
+    }
+  };
+
+  if (winnersForm) {
+    // Volver a pulsar una categoría ya marcada la desmarca
+    document.addEventListener("pointerdown", (e) => {
+      const r = e.target.closest && e.target.closest(".award__opt")?.querySelector("input");
+      if (r) r.dataset.was = r.checked ? "1" : "";
+    });
+    document.addEventListener("click", (e) => {
+      const r = e.target.closest && e.target.closest(".award__opt")?.querySelector("input");
+      if (!r || e.target !== r) return;
+      if (r.dataset.was === "1") { r.checked = false; r.dataset.was = ""; }
+      refreshWinners();
+    });
+    document.addEventListener("change", (e) => { if (e.target.matches && e.target.matches('input[form="f-ganadores"]')) refreshWinners(); });
+    winnersForm.addEventListener("submit", (e) => {
+      if (conflicts().length) {
+        e.preventDefault();
+        refreshWinners();
+        document.querySelector("[data-winner-warning]")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      if (isStatic) { e.preventDefault(); alert("Ganadores guardados (vista de prueba, sin servidor)."); }
+    });
+    refreshWinners();
+  }
+
+  /* Borrar jersey: pide confirmación antes de enviar el formulario */
+  const confirmDlg = document.getElementById("confirm-delete");
+  if (confirmDlg) {
+    let pending = null;
+    document.addEventListener("submit", (e) => {
+      const f = e.target.closest && e.target.closest("form[data-confirm-delete]");
+      if (!f) return;
+      e.preventDefault();
+      pending = f;
+      confirmDlg.querySelector("[data-confirm-name]").textContent =
+        f.dataset.id ? `nº ${f.dataset.id} de ${f.dataset.autor}` : "de este participante";
+      confirmDlg.returnValue = "";
+      confirmDlg.showModal();
+    });
+    confirmDlg.addEventListener("click", (e) => { if (e.target === confirmDlg) confirmDlg.close("cancel"); });
+    confirmDlg.addEventListener("close", () => {
+      if (confirmDlg.returnValue === "ok" && pending) {
+        if (isStatic) { pending.closest("[data-row]")?.remove(); refreshWinners(); }  // sin servidor: solo se quita la tarjeta
+        else pending.submit();                                                      // submit() no vuelve a pedir confirmación
+      }
+      pending = null;
+    });
+  }
+
+  /* Buscador de jerséis (participante o nº) */
+  const adminSearch = document.querySelector("[data-admin-search]");
+  if (adminSearch) {
+    adminSearch.addEventListener("input", () => {
+      const q = adminSearch.value.trim().toLowerCase().replace(/^n[ºo°]\s*/, "");
+      document.querySelectorAll("[data-row]").forEach((card) => {
+        const hay = `${card.dataset.autor} ${card.dataset.id} ${card.textContent}`.toLowerCase();
+        card.hidden = !!q && !hay.includes(q);
+      });
+    });
+  }
+
+  /* Sin servidor: el acceso admin lleva directamente al panel y cerrar sesión vuelve al acceso */
+  if (isStatic) {
+    document.querySelectorAll("form[data-admin-login]").forEach((f) =>
+      f.addEventListener("submit", (e) => { e.preventDefault(); location.href = "admin.html"; }));
+    document.querySelectorAll("form[data-admin-logout]").forEach((f) =>
+      f.addEventListener("submit", (e) => { e.preventDefault(); location.href = "admin-login.html"; }));
+  }
+
   /* ---------- Bases: resalta el apartado visible en el índice ---------- */
   const tocLinks = document.querySelectorAll(".toc a[href^='#']");
   if (tocLinks.length && "IntersectionObserver" in window) {

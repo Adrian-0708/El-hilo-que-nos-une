@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#004724">
+  <script>document.documentElement.classList.add('js');</script>
+  <title>Administración · El hilo que nos une</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../static/img/favicon.png" th:href="@{/img/favicon.png}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Montserrat:ital,wght@0,400..700;1,400..600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/styles.css" th:href="@{/css/styles.css}">
+</head>
+<body class="admin-body">
+
+  <!-- ===== ICONOS ===== -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0Z" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-tree" viewBox="0 0 24 24"><path d="M12 2.5 6.5 10H9l-4.5 6h5v5h5v-5h5L15 10h2.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6m-5 3h4M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-burst" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M2 12h4m12 0h4M4.9 4.9l2.8 2.8m8.6 8.6 2.8 2.8m0-14.2-2.8 2.8m-8.6 8.6-2.8 2.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 3.8 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.4 0 5.6 3.3 4.4 6.7-1.7 4.7-9.2 9.3-9.2 9.3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="m8.3 10.8 7.4-3.6m-7.4 6 7.4 3.6"/></g></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 11h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Zm-1-4h18v4H3Zm9 0v14M12 7S10.5 3 8 3.5 7.2 7 12 7Zm0 0s1.5-4 4-3.5S16.8 7 12 7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></g><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor"/></symbol>
+    <symbol id="i-tiktok" viewBox="0 0 24 24"><path d="M16.6 5.8a4.3 4.3 0 0 1-1-2.8h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 1 0 4.9 5.6V9a7.3 7.3 0 0 0 4.3 1.4V7.3a4.3 4.3 0 0 1-3.3-1.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11m0-11-11 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></g></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0-5 5m5-5 5 5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4m8-4v4"/></g></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-9.5v.01"/></g></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8Z"/><path d="M14 3v5h5M9 13h6m-6 4h6"/></g></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4c2.1.7 3.5 2.6 3.5 5.6"/></g></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4Z"/><path d="M14.5 7v10" stroke-dasharray="2 2"/></g></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></g></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></g></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 8.6c0 3.4 3 6.4 6.4 6.4l1-1.6-2-1-1 .9c-1.2-.5-2.2-1.5-2.7-2.7l.9-1-1-2Z" fill="currentColor"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></g></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0Zm0 1H4v2a3 3 0 0 0 4 3m8-5h4v2a3 3 0 0 1-4 3m-4 3v4m-4 4h8m-6-4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></g></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6m0-6-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <!-- ===== PANEL DE ADMINISTRACIÓN =====
+       GET /admin (solo rol ADMIN; sin sesión, Spring Security redirige a /admin/login).
+       Modelo: ${jerseys} (id, autor, autorId, autorEmail, imagenDelanteraUrl, imagenTraseraUrl, votos, fechaSubida).
+               Los jerséis no tienen nombre: se identifican por participante + nº (id) + fecha. Una cuenta puede tener hasta 3.
+               ${totalVotos}, ${ganadores} (navideno, creativo, extravagante, publico: id del jersey o null),
+               ${masVotado} (jersey con más votos, opcional), ${mensaje} / ${error}.
+       Las tarjetas con th:remove="all" son solo de muestra para ver el diseño. -->
+  <header class="admin-bar">
+    <div class="container admin-bar__inner">
+      <a class="brand" href="admin.html" th:href="@{/admin}" aria-label="Panel de administración">
+        <img src="../static/img/logo.png" th:src="@{/img/logo.png}" alt="El hilo que nos une" width="1000" height="346">
+      </a>
+      <span class="tag tag--red"><svg class="icon"><use href="#i-lock"/></svg>Administración</span>
+      <div class="admin-bar__actions">
+        <span class="admin-bar__user"><svg class="icon"><use href="#i-user"/></svg><span th:text="${usuario != null ? usuario.nombre : 'Admin'}">Admin</span></span>
+        <a class="btn btn--outline btn--sm" href="index.html" th:href="@{/}" target="_blank" rel="noopener"><svg class="icon"><use href="#i-external"/></svg>Ver la web</a>
+        <form method="post" action="#" th:action="@{/logout}" data-admin-logout>
+          <button class="btn btn--red btn--sm" type="submit"><svg class="icon"><use href="#i-logout"/></svg>Cerrar sesión</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main id="contenido" class="container admin">
+    <div class="admin__head">
+      <div>
+        <span class="eyebrow"><svg class="icon"><use href="#i-star"/></svg>El hilo que nos une · 2026</span>
+        <h1 class="h2">Panel de <em>administración</em></h1>
+      </div>
+      <ul class="admin-stats">
+        <li><strong th:text="${#lists.size(jerseys)}">5</strong>jerséis</li>
+        <li><strong th:text="${totalVotos}">138</strong>votos</li>
+      </ul>
+    </div>
+
+    <div class="alert alert--ok" th:if="${mensaje}" role="status" hidden th:hidden="${false}">
+      <svg class="icon"><use href="#i-check"/></svg><span th:text="${mensaje}">Cambios guardados.</span>
+    </div>
+    <div class="alert alert--error" th:if="${error}" role="alert" hidden th:hidden="${false}">
+      <svg class="icon"><use href="#i-info"/></svg><span th:text="${error}">No se pudo guardar.</span>
+    </div>
+
+    <!-- ===== GANADORES =====
+         Se eligen desde las tarjetas de «Jerséis presentados» (botones «Premiar como»).
+         POST /admin/ganadores con navideno, creativo, extravagante, publico = id del jersey (si no se elige, no se envía).
+         Cada participante solo puede ganar una categoría: main.js lo comprueba antes de enviar. -->
+    <section class="admin-block stitched" id="ganadores" aria-labelledby="t-ganadores">
+      <div class="admin-block__head">
+        <div>
+          <h2 id="t-ganadores"><svg class="icon"><use href="#i-trophy"/></svg>Ganadores</h2>
+          <p class="muted">Pulsa una categoría en la tarjeta de un jersey para premiarlo. Vuelve a pulsarla para quitarla.</p>
+        </div>
+        <p class="admin-hint" th:if="${masVotado != null}">
+          <svg class="icon"><use href="#i-heart"/></svg>Más votado:
+          <strong th:text="|${masVotado.autor} · nº ${masVotado.id} (${masVotado.votos} votos)|">Lucía M. · nº 12 (48 votos)</strong>
+        </p>
+      </div>
+      <div class="podium">
+          <div class="slot" data-slot="navideno">
+            <div class="slot__photo"><span class="prize__icon"><svg class="icon"><use href="#i-tree"/></svg></span><img data-slot-img alt="" hidden></div>
+            <div class="slot__info">
+              <small>El más navideño</small>
+              <strong data-slot-name>Sin elegir</strong>
+              <span data-slot-meta></span>
+            </div>
+          </div>
+          <div class="slot" data-slot="creativo">
+            <div class="slot__photo"><span class="prize__icon"><svg class="icon"><use href="#i-bulb"/></svg></span><img data-slot-img alt="" hidden></div>
+            <div class="slot__info">
+              <small>El más creativo u original</small>
+              <strong data-slot-name>Sin elegir</strong>
+              <span data-slot-meta></span>
+            </div>
+          </div>
+          <div class="slot" data-slot="extravagante">
+            <div class="slot__photo"><span class="prize__icon"><svg class="icon"><use href="#i-burst"/></svg></span><img data-slot-img alt="" hidden></div>
+            <div class="slot__info">
+              <small>El más extravagante</small>
+              <strong data-slot-name>Sin elegir</strong>
+              <span data-slot-meta></span>
+            </div>
+          </div>
+          <div class="slot slot--public" data-slot="publico">
+            <div class="slot__photo"><span class="prize__icon"><svg class="icon"><use href="#i-heart"/></svg></span><img data-slot-img alt="" hidden></div>
+            <div class="slot__info">
+              <small>El favorito del público</small>
+              <strong data-slot-name>Sin elegir</strong>
+              <span data-slot-meta></span>
+            </div>
+          </div>
+      </div>
+      <div class="alert alert--error" data-winner-warning role="alert" hidden>
+        <svg class="icon"><use href="#i-info"/></svg><span></span>
+      </div>
+      <form id="f-ganadores" method="post" action="#" th:action="@{/admin/ganadores}" data-winners>
+        <button class="btn btn--green" type="submit"><svg class="icon"><use href="#i-check"/></svg>Guardar ganadores</button>
+      </form>
+    </section>
+
+    <!-- ===== JERSÉIS =====
+         Una tarjeta por jersey: fotos, participante, nº, fecha y votos.
+         Borrar: POST /admin/jerseys/{id}/eliminar. main.js pide confirmación antes de enviar. -->
+    <section class="admin-block stitched" id="jerseys" aria-labelledby="t-jerseys">
+      <div class="admin-block__head">
+        <div>
+          <h2 id="t-jerseys">Jerséis presentados</h2>
+          <p class="muted">Cada cuenta puede presentar hasta 3 jerséis: se distinguen por el nº, la fecha y las fotos.</p>
+        </div>
+        <label class="admin-search">
+          <span class="visually-hidden">Buscar</span>
+          <svg class="icon"><use href="#i-search"/></svg>
+          <input class="input" type="search" placeholder="Buscar participante o nº" data-admin-search>
+        </label>
+      </div>
+      <div class="ajerseys" th:unless="${#lists.isEmpty(jerseys)}">
+          <article class="ajersey stitched" data-row th:each="j : ${jerseys}"
+                 th:attr="data-autor-id=${j.autorId},data-autor=${j.autor},data-id=${j.id}" data-autor-id="7" data-autor="Lucía M." data-id="12">
+            <div class="ajersey__photos">
+              <img src="../static/img/logo-icono.png" th:src="@{${j.imagenDelanteraUrl}}" th:alt="|Jersey nº ${j.id} de ${j.autor} · delante|" alt="Delante" loading="lazy" data-front>
+              <img src="../static/img/logo-icono.png" th:src="@{${j.imagenTraseraUrl}}" th:alt="|Jersey nº ${j.id} de ${j.autor} · detrás|" alt="Detrás" loading="lazy">
+              <span class="ajersey__badges" data-badges></span>
+            </div>
+            <div class="ajersey__body">
+              <div class="ajersey__who"><strong th:text="${j.autor}">Lucía M.</strong><span class="ajersey__id">Nº <span th:text="${j.id}">12</span></span></div>
+              <small th:text="${j.autorEmail}">lucia@correo.com</small>
+              <div class="ajersey__meta">
+              <span data-fecha><svg class="icon"><use href="#i-clock"/></svg><span th:text="${#temporals.format(j.fechaSubida, 'd MMM, HH:mm')}">6 dic, 10:32</span></span>
+              <span><svg class="icon"><use href="#i-heart"/></svg><span th:text="${j.votos}">48</span> votos</span>
+              </div>
+              <fieldset class="award">
+                <legend>Premiar como</legend>
+              <label class="award__opt award__opt--navideno" title="El más navideño">
+                <input type="radio" name="navideno" form="f-ganadores" th:value="${j.id}" value="12" th:checked="${ganadores != null and ganadores.navideno == j.id}">
+                <svg class="icon"><use href="#i-tree"/></svg><span>Navideño</span>
+              </label>
+              <label class="award__opt award__opt--creativo" title="El más creativo u original">
+                <input type="radio" name="creativo" form="f-ganadores" th:value="${j.id}" value="12" th:checked="${ganadores != null and ganadores.creativo == j.id}">
+                <svg class="icon"><use href="#i-bulb"/></svg><span>Creativo</span>
+              </label>
+              <label class="award__opt award__opt--extravagante" title="El más extravagante">
+                <input type="radio" name="extravagante" form="f-ganadores" th:value="${j.id}" value="12" th:checked="${ganadores != null and ganadores.extravagante == j.id}">
+                <svg class="icon"><use href="#i-burst"/></svg><span>Extravagante</span>
+              </label>
+              <label class="award__opt award__opt--publico" title="El favorito del público">
+                <input type="radio" name="publico" form="f-ganadores" th:value="${j.id}" value="12" th:checked="${ganadores != null and ganadores.publico == j.id}">
+                <svg class="icon"><use href="#i-heart"/></svg><span>Público</span>
+              </label>
+              </fieldset>
+              <form method="post" action="#" th:action="@{/admin/jerseys/{id}/eliminar(id=${j.id})}" data-confirm-delete
+                  th:attr="data-autor=${j.autor},data-id=${j.id}" data-autor="Lucía M." data-id="12">
+                <button class="btn btn--danger btn--sm" type="submit"><svg class="icon"><use href="#i-trash"/></svg>Borrar jersey</button>
+              </form>
+            </div>
+          </article>
+          <article class="ajersey stitched" data-row data-autor-id="7" data-autor="Lucía M." data-id="15" th:remove="all">
+            <div class="ajersey__photos">
+              <img src="../static/img/logo-icono.png" alt="Delante" data-front>
+              <img src="../static/img/logo-icono.png" alt="Detrás">
+              <span class="ajersey__badges" data-badges></span>
+            </div>
+            <div class="ajersey__body">
+              <div class="ajersey__who"><strong>Lucía M.</strong><span class="ajersey__id">Nº 15</span></div>
+              <small>lucia@correo.com</small>
+              <div class="ajersey__meta">
+              <span data-fecha><svg class="icon"><use href="#i-clock"/></svg><span>7 dic, 18:40</span></span>
+              <span><svg class="icon"><use href="#i-heart"/></svg>21 votos</span>
+              </div>
+              <fieldset class="award">
+                <legend>Premiar como</legend>
+              <label class="award__opt award__opt--navideno" title="El más navideño">
+                <input type="radio" name="navideno" form="f-ganadores" value="15">
+                <svg class="icon"><use href="#i-tree"/></svg><span>Navideño</span>
+              </label>
+              <label class="award__opt award__opt--creativo" title="El más creativo u original">
+                <input type="radio" name="creativo" form="f-ganadores" value="15">
+                <svg class="icon"><use href="#i-bulb"/></svg><span>Creativo</span>
+              </label>
+              <label class="award__opt award__opt--extravagante" title="El más extravagante">
+                <input type="radio" name="extravagante" form="f-ganadores" value="15">
+                <svg class="icon"><use href="#i-burst"/></svg><span>Extravagante</span>
+              </label>
+              <label class="award__opt award__opt--publico" title="El favorito del público">
+                <input type="radio" name="publico" form="f-ganadores" value="15">
+                <svg class="icon"><use href="#i-heart"/></svg><span>Público</span>
+              </label>
+              </fieldset>
+              <form method="post" action="#" data-confirm-delete data-autor="Lucía M." data-id="15">
+                <button class="btn btn--danger btn--sm" type="submit"><svg class="icon"><use href="#i-trash"/></svg>Borrar jersey</button>
+              </form>
+            </div>
+          </article>
+          <article class="ajersey stitched" data-row data-autor-id="9" data-autor="Pablo R." data-id="13" th:remove="all">
+            <div class="ajersey__photos">
+              <img src="../static/img/logo-icono.png" alt="Delante" data-front>
+              <img src="../static/img/logo-icono.png" alt="Detrás">
+              <span class="ajersey__badges" data-badges></span>
+            </div>
+            <div class="ajersey__body">
+              <div class="ajersey__who"><strong>Pablo R.</strong><span class="ajersey__id">Nº 13</span></div>
+              <small>pablo@correo.com</small>
+              <div class="ajersey__meta">
+              <span data-fecha><svg class="icon"><use href="#i-clock"/></svg><span>6 dic, 18:05</span></span>
+              <span><svg class="icon"><use href="#i-heart"/></svg>33 votos</span>
+              </div>
+              <fieldset class="award">
+                <legend>Premiar como</legend>
+              <label class="award__opt award__opt--navideno" title="El más navideño">
+                <input type="radio" name="navideno" form="f-ganadores" value="13">
+                <svg class="icon"><use href="#i-tree"/></svg><span>Navideño</span>
+              </label>
+              <label class="award__opt award__opt--creativo" title="El más creativo u original">
+                <input type="radio" name="creativo" form="f-ganadores" value="13">
+                <svg class="icon"><use href="#i-bulb"/></svg><span>Creativo</span>
+              </label>
+              <label class="award__opt award__opt--extravagante" title="El más extravagante">
+                <input type="radio" name="extravagante" form="f-ganadores" value="13">
+                <svg class="icon"><use href="#i-burst"/></svg><span>Extravagante</span>
+              </label>
+              <label class="award__opt award__opt--publico" title="El favorito del público">
+                <input type="radio" name="publico" form="f-ganadores" value="13">
+                <svg class="icon"><use href="#i-heart"/></svg><span>Público</span>
+              </label>
+              </fieldset>
+              <form method="post" action="#" data-confirm-delete data-autor="Pablo R." data-id="13">
+                <button class="btn btn--danger btn--sm" type="submit"><svg class="icon"><use href="#i-trash"/></svg>Borrar jersey</button>
+              </form>
+            </div>
+          </article>
+          <article class="ajersey stitched" data-row data-autor-id="11" data-autor="Marta G." data-id="14" th:remove="all">
+            <div class="ajersey__photos">
+              <img src="../static/img/logo-icono.png" alt="Delante" data-front>
+              <img src="../static/img/logo-icono.png" alt="Detrás">
+              <span class="ajersey__badges" data-badges></span>
+            </div>
+            <div class="ajersey__body">
+              <div class="ajersey__who"><strong>Marta G.</strong><span class="ajersey__id">Nº 14</span></div>
+              <small>marta@correo.com</small>
+              <div class="ajersey__meta">
+              <span data-fecha><svg class="icon"><use href="#i-clock"/></svg><span>7 dic, 09:47</span></span>
+              <span><svg class="icon"><use href="#i-heart"/></svg>21 votos</span>
+              </div>
+              <fieldset class="award">
+                <legend>Premiar como</legend>
+              <label class="award__opt award__opt--navideno" title="El más navideño">
+                <input type="radio" name="navideno" form="f-ganadores" value="14">
+                <svg class="icon"><use href="#i-tree"/></svg><span>Navideño</span>
+              </label>
+              <label class="award__opt award__opt--creativo" title="El más creativo u original">
+                <input type="radio" name="creativo" form="f-ganadores" value="14">
+                <svg class="icon"><use href="#i-bulb"/></svg><span>Creativo</span>
+              </label>
+              <label class="award__opt award__opt--extravagante" title="El más extravagante">
+                <input type="radio" name="extravagante" form="f-ganadores" value="14">
+                <svg class="icon"><use href="#i-burst"/></svg><span>Extravagante</span>
+              </label>
+              <label class="award__opt award__opt--publico" title="El favorito del público">
+                <input type="radio" name="publico" form="f-ganadores" value="14">
+                <svg class="icon"><use href="#i-heart"/></svg><span>Público</span>
+              </label>
+              </fieldset>
+              <form method="post" action="#" data-confirm-delete data-autor="Marta G." data-id="14">
+                <button class="btn btn--danger btn--sm" type="submit"><svg class="icon"><use href="#i-trash"/></svg>Borrar jersey</button>
+              </form>
+            </div>
+          </article>
+          <article class="ajersey stitched" data-row data-autor-id="15" data-autor="Javier S." data-id="16" th:remove="all">
+            <div class="ajersey__photos">
+              <img src="../static/img/logo-icono.png" alt="Delante" data-front>
+              <img src="../static/img/logo-icono.png" alt="Detrás">
+              <span class="ajersey__badges" data-badges></span>
+            </div>
+            <div class="ajersey__body">
+              <div class="ajersey__who"><strong>Javier S.</strong><span class="ajersey__id">Nº 16</span></div>
+              <small>javier@correo.com</small>
+              <div class="ajersey__meta">
+              <span data-fecha><svg class="icon"><use href="#i-clock"/></svg><span>8 dic, 20:12</span></span>
+              <span><svg class="icon"><use href="#i-heart"/></svg>15 votos</span>
+              </div>
+              <fieldset class="award">
+                <legend>Premiar como</legend>
+              <label class="award__opt award__opt--navideno" title="El más navideño">
+                <input type="radio" name="navideno" form="f-ganadores" value="16">
+                <svg class="icon"><use href="#i-tree"/></svg><span>Navideño</span>
+              </label>
+              <label class="award__opt award__opt--creativo" title="El más creativo u original">
+                <input type="radio" name="creativo" form="f-ganadores" value="16">
+                <svg class="icon"><use href="#i-bulb"/></svg><span>Creativo</span>
+              </label>
+              <label class="award__opt award__opt--extravagante" title="El más extravagante">
+                <input type="radio" name="extravagante" form="f-ganadores" value="16">
+                <svg class="icon"><use href="#i-burst"/></svg><span>Extravagante</span>
+              </label>
+              <label class="award__opt award__opt--publico" title="El favorito del público">
+                <input type="radio" name="publico" form="f-ganadores" value="16">
+                <svg class="icon"><use href="#i-heart"/></svg><span>Público</span>
+              </label>
+              </fieldset>
+              <form method="post" action="#" data-confirm-delete data-autor="Javier S." data-id="16">
+                <button class="btn btn--danger btn--sm" type="submit"><svg class="icon"><use href="#i-trash"/></svg>Borrar jersey</button>
+              </form>
+            </div>
+          </article>
+      </div>
+      <p class="muted" th:if="${#lists.isEmpty(jerseys)}" hidden th:hidden="${false}">Todavía no hay jerséis presentados.</p>
+    </section>
+  </main>
+
+  <!-- ===== CONFIRMAR BORRADO ===== -->
+  <dialog class="modal modal--confirm" id="confirm-delete" aria-labelledby="confirm-title">
+    <form class="confirm" method="dialog">
+      <span class="confirm__icon"><svg class="icon"><use href="#i-trash"/></svg></span>
+      <h2 id="confirm-title">¿Borrar este jersey?</h2>
+      <p class="muted">Vas a borrar el jersey <strong data-confirm-name>de este participante</strong> y sus votos. Esta acción no se puede deshacer.</p>
+      <div class="confirm__actions">
+        <button class="btn btn--outline" value="cancel" autofocus>Cancelar</button>
+        <button class="btn btn--red" value="ok"><svg class="icon"><use href="#i-trash"/></svg>Sí, borrar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="../static/js/main.js" th:src="@{/js/main.js}" defer></script>
+</body>
+</html>
