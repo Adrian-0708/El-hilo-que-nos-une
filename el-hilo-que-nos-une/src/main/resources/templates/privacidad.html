@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#004724">
+  <script>document.documentElement.classList.add('js');</script>
+  <title>Aviso de privacidad · El hilo que nos une</title>
+  <meta name="description" content="Aviso de privacidad del concurso «El hilo que nos une».">
+  <link rel="icon" href="../static/img/favicon.png" th:href="@{/img/favicon.png}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/styles.css" th:href="@{/css/styles.css}">
+</head>
+<body th:attr="data-logged=${usuario != null}">
+
+  <!-- ===== ICONOS ===== -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0Z" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-tree" viewBox="0 0 24 24"><path d="M12 2.5 6.5 10H9l-4.5 6h5v5h5v-5h5L15 10h2.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6m-5 3h4M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-burst" viewBox="0 0 24 24"><path d="M12 2v4m0 12v4M2 12h4m12 0h4M4.9 4.9l2.8 2.8m8.6 8.6 2.8 2.8m0-14.2-2.8 2.8m-8.6 8.6-2.8 2.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.8 3.8 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.4 0 5.6 3.3 4.4 6.7-1.7 4.7-9.2 9.3-9.2 9.3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="m8.3 10.8 7.4-3.6m-7.4 6 7.4 3.6"/></g></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 11h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Zm-1-4h18v4H3Zm9 0v14M12 7S10.5 3 8 3.5 7.2 7 12 7Zm0 0s1.5-4 4-3.5S16.8 7 12 7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></g><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor"/></symbol>
+    <symbol id="i-tiktok" viewBox="0 0 24 24"><path d="M16.6 5.8a4.3 4.3 0 0 1-1-2.8h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 1 0 4.9 5.6V9a7.3 7.3 0 0 0 4.3 1.4V7.3a4.3 4.3 0 0 1-3.3-1.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11m0-11-11 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></g></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0-5 5m5-5 5 5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4m8-4v4"/></g></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-9.5v.01"/></g></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8Z"/><path d="M14 3v5h5M9 13h6m-6 4h6"/></g></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4c2.1.7 3.5 2.6 3.5 5.6"/></g></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4Z"/><path d="M14.5 7v10" stroke-dasharray="2 2"/></g></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></g></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></g></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 8.6c0 3.4 3 6.4 6.4 6.4l1-1.6-2-1-1 .9c-1.2-.5-2.2-1.5-2.7-2.7l.9-1-1-2Z" fill="currentColor"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></g></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+  </svg>
+
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+
+  <!-- ===== CABECERA ===== -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html" th:href="@{/}" aria-label="El hilo que nos une · Inicio">
+        <img src="../static/img/logo.png" th:src="@{/img/logo.png}" alt="El hilo que nos une · I Concurso Jersey Navideño" width="1000" height="346" decoding="async">
+      </a>
+      <button class="nav__toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu">
+        <svg class="open"><use href="#i-menu"/></svg>
+        <svg class="close"><use href="#i-close"/></svg>
+      </button>
+      <nav class="nav__menu" id="menu" aria-label="Principal">
+        <ul class="nav__links">
+          <li><a href="index.html" th:href="@{/}">Inicio</a></li>
+          <li><a href="participar.html" th:href="@{/participar}">Cómo participar</a></li>
+          <li><a href="votar.html" th:href="@{/votar}">Galería y votos</a></li>
+          <li><a href="premios.html" th:href="@{/premios}">Premios</a></li>
+          <li><a href="fechas.html" th:href="@{/fechas}">Fechas</a></li>
+          <li><a href="bases.html" th:href="@{/bases}">Bases legales</a></li>
+        </ul>
+        <div class="nav__auth">
+          <!-- Sin sesión: abre la ventana de entrar / crear cuenta -->
+          <button class="btn btn--red btn--sm" type="button" data-auth="anon" data-open-auth="login" th:if="${usuario == null}">
+            <svg class="icon"><use href="#i-user"/></svg> Entrar
+          </button>
+          <!-- Con sesión: menú del usuario (${usuario} con nombre y email) -->
+          <div class="user-menu" data-auth="user" th:if="${usuario != null}" hidden th:hidden="${false}">
+            <button class="user-menu__btn" type="button" aria-haspopup="true" aria-expanded="false">
+              <span class="avatar" th:text="${#strings.toUpperCase(#strings.substring(usuario.nombre, 0, 1))}">L</span>
+              <span class="user-menu__name" th:text="${usuario.nombre}">Lucía</span>
+              <svg class="icon user-menu__chev"><use href="#i-chev"/></svg>
+            </button>
+            <div class="dropdown" role="menu">
+              <div class="dropdown__head">
+                <strong th:text="${usuario.nombre}">Lucía Martín</strong>
+                <span th:text="${usuario.email}">lucia@correo.com</span>
+              </div>
+              <a class="dropdown__item" role="menuitem" href="participar.html" th:href="@{/participar}"><svg class="icon"><use href="#i-upload"/></svg>Presentar mi jersey</a>
+              <a class="dropdown__item" role="menuitem" href="votar.html" th:href="@{/votar}"><svg class="icon"><use href="#i-heart"/></svg>Votar</a>
+              <form method="post" action="#" th:action="@{/logout}" data-logout>
+                <button class="dropdown__item dropdown__item--danger" type="submit" role="menuitem"><svg class="icon"><use href="#i-logout"/></svg>Cerrar sesión</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenido">
+    <!-- Guirnaldas de los márgenes (solo pantallas anchas). Se desvanecen al llegar al pie. -->
+    <div class="garland garland--left" aria-hidden="true"></div>
+    <div class="garland garland--right" aria-hidden="true"></div>
+    <section class="page-hero">
+      <div class="container">
+        <div class="page-hero__inner">
+          <span class="eyebrow reveal"><svg class="icon"><use href="#i-star"/></svg>Legal</span>
+          <h1 class="display reveal" style="--rd:.08s">Aviso de <em>privacidad</em></h1>
+          <p class="lead reveal" style="--rd:.16s">Pendiente de publicar por la organización.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PENDIENTE: sustituir por el aviso de privacidad definitivo de Victoria FP.
+         Hasta entonces, el formulario de /participar debe seguir desactivado. -->
+    <div class="container container--narrow" style="display:grid;gap:22px">
+      <div class="notice reveal">
+        <svg class="icon"><use href="#i-info"/></svg>
+        <p><strong>Este texto todavía no es una política de privacidad.</strong> Antes de activar el formulario de inscripción, Victoria FP debe publicar aquí su aviso de privacidad.</p>
+      </div>
+
+      <article class="block stitched reveal">
+        <h2>Información pendiente</h2>
+        <p>El aviso definitivo indicará:</p>
+        <ul class="checklist">
+          <li><span class="mark"><svg class="icon"><use href="#i-clock"/></svg></span><span>Quién es el responsable del tratamiento y sus datos de contacto.</span></li>
+          <li><span class="mark"><svg class="icon"><use href="#i-clock"/></svg></span><span>Las finalidades y las bases jurídicas del tratamiento.</span></li>
+          <li><span class="mark"><svg class="icon"><use href="#i-clock"/></svg></span><span>Los destinatarios de los datos.</span></li>
+          <li><span class="mark"><svg class="icon"><use href="#i-clock"/></svg></span><span>El plazo o el criterio de conservación.</span></li>
+          <li><span class="mark"><svg class="icon"><use href="#i-clock"/></svg></span><span>Cómo ejercer los derechos de protección de datos.</span></li>
+          <li><span class="mark"><svg class="icon"><use href="#i-clock"/></svg></span><span>La autorización del representante legal de los menores y el consentimiento para la difusión de imágenes.</span></li>
+        </ul>
+      </article>
+
+      <div class="notice notice--green reveal">
+        <svg class="icon"><use href="#i-lock"/></svg>
+        <p>Mientras tanto, la recepción de fotos y datos permanece desactivada. Puedes leer cómo se usarán tus datos en el <a class="link" href="bases.html#b10" th:href="@{/bases#b10}">apartado 10 de las bases</a>.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== PIE =====
+       Logo Victoria FP y redes · Contacto · Patrocinadores (todo alineado a la izquierda).
+       Para añadir otro patrocinador, copiar el <a class="sponsor"> con su web y su logo (static/img/patrocinadores/). -->
+  <footer class="site-footer">
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <img class="footer__logo" src="../static/img/logo-victoria.png" th:src="@{/img/logo-victoria.png}" alt="Victoria FP" width="300" height="210" loading="lazy" decoding="async">
+        <div class="footer__social">
+          <a href="https://www.instagram.com/victoriafp/" target="_blank" rel="noopener" aria-label="Instagram"><svg class="icon"><use href="#i-instagram"/></svg></a>
+          <a href="https://www.tiktok.com/@victoria_fp_institute" target="_blank" rel="noopener" aria-label="TikTok"><svg class="icon"><use href="#i-tiktok"/></svg></a>
+          <a href="https://wa.me/34601568976" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="icon"><use href="#i-whatsapp"/></svg></a>
+        </div>
+      </div>
+
+      <div class="footer__center">
+        <div>
+          <h2 class="footer__title">Contacto</h2>
+          <ul class="footer__contact">
+            <li>
+              <svg class="icon"><use href="#i-pin"/></svg>
+              <a href="https://www.google.com/maps/search/?api=1&amp;query=C%2F%20Puerto%20Serrano%20s%2Fn%2C%2011540%20Sanl%C3%BAcar%20de%20Barrameda" target="_blank" rel="noopener">C/ Puerto Serrano s/n<br>11540 Sanlúcar de Barrameda, Cádiz</a>
+            </li>
+            <li><svg class="icon"><use href="#i-phone"/></svg><a href="tel:+34601568976">+34 601 56 89 76</a></li>
+            <li><svg class="icon"><use href="#i-mail"/></svg><a href="mailto:direccion@victoriafp.com">direccion@victoriafp.com</a></li>
+            <li><svg class="icon"><use href="#i-globe"/></svg><a href="https://victoriafp.com/" target="_blank" rel="noopener">victoriafp.com</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sponsors">
+        <a class="sponsor" href="https://www.ladulceriadelarondena.com/" target="_blank" rel="noopener" aria-label="Patrocinador: La Dulcería de La Rondeña">
+          <img class="logo-white" src="../static/img/patrocinadores/la-rondena.png" th:src="@{/img/patrocinadores/la-rondena.png}" alt="La Dulcería de La Rondeña" width="894" height="521" loading="lazy" decoding="async">
+        </a>
+      </div>
+    </div>
+
+    <div class="container footer__bottom">
+      <nav class="footer__links" aria-label="Legal">
+        <a href="bases.html" th:href="@{/bases}">Términos y condiciones</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ===== VENTANA ENTRAR / CREAR CUENTA =====
+       Entrar:   POST /login    (username = correo, password, remember-me)  → Spring Security
+       Registro: POST /registro (nombre, email, password, password2, mayorEdad, aceptaBases)
+       Si el login falla (/?error) la ventana se abre sola. -->
+  <dialog class="modal" id="auth" aria-labelledby="auth-title"
+          th:attr="data-auto-open=${param.error != null ? 'login' : ''}">
+    <div class="auth">
+      <aside class="auth__art" aria-hidden="true">
+        <img class="auth__logo" src="../static/img/logo.png" th:src="@{/img/logo.png}" alt="" width="1000" height="346" loading="lazy" decoding="async">
+      </aside>
+
+      <div class="auth__body">
+        <button class="auth__close" type="button" data-close-auth aria-label="Cerrar"><svg class="icon"><use href="#i-close"/></svg></button>
+        <h2 class="auth__title" id="auth-title">¡Hola de nuevo!</h2>
+        <p class="auth__sub">Entra para presentar tu jersey y votar.</p>
+
+        <div class="tabs" role="tablist">
+          <button class="tabs__btn is-active" type="button" role="tab" id="tab-login" aria-controls="panel-login" aria-selected="true" data-tab="login">Iniciar sesión</button>
+          <button class="tabs__btn" type="button" role="tab" id="tab-registro" aria-controls="panel-registro" aria-selected="false" data-tab="registro">Crear cuenta</button>
+        </div>
+
+        <div class="alert alert--error" th:if="${param.error}" role="alert" hidden th:hidden="${false}">
+          <svg class="icon"><use href="#i-info"/></svg><span>Correo o contraseña incorrectos.</span>
+        </div>
+
+        <!-- Iniciar sesión -->
+        <form class="form" id="panel-login" role="tabpanel" aria-labelledby="tab-login"
+              method="post" action="#" th:action="@{/login}" data-auth-form>
+          <div class="field">
+            <label for="login-email">Correo electrónico</label>
+            <input class="input" id="login-email" name="username" type="email" autofocus autocomplete="username" placeholder="tu@correo.com" required>
+          </div>
+          <div class="field">
+            <label for="login-pw">Contraseña</label>
+            <div class="pw">
+              <input class="input" id="login-pw" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
+              <button class="pw__toggle" type="button" data-toggle-pw aria-label="Mostrar contraseña"><svg class="icon"><use href="#i-eye"/></svg></button>
+            </div>
+          </div>
+          <div class="form__inline">
+            <label class="check"><input type="checkbox" name="remember-me"><span>Recordarme</span></label>
+            <a class="link" href="#">¿Has olvidado la contraseña?</a>
+          </div>
+          <button class="btn btn--red btn--block" type="submit">Entrar</button>
+        </form>
+
+        <!-- Crear cuenta -->
+        <form class="form" id="panel-registro" role="tabpanel" aria-labelledby="tab-registro" hidden
+              method="post" action="#" th:action="@{/registro}" data-auth-form>
+          <div class="form__row">
+            <div class="field">
+              <label for="reg-nombre">Nombre y apellidos</label>
+              <input class="input" id="reg-nombre" name="nombre" type="text" autocomplete="name" maxlength="80" placeholder="Ej: Lucía Martín" required>
+            </div>
+            <div class="field">
+              <label for="reg-email">Correo electrónico</label>
+              <input class="input" id="reg-email" name="email" type="email" autocomplete="email" placeholder="tu@correo.com" required>
+            </div>
+          </div>
+          <div class="form__row">
+            <div class="field">
+              <label for="reg-pw">Contraseña</label>
+              <div class="pw">
+                <input class="input" id="reg-pw" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Mín. 8 caracteres" required>
+                <button class="pw__toggle" type="button" data-toggle-pw aria-label="Mostrar contraseña"><svg class="icon"><use href="#i-eye"/></svg></button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="reg-pw2">Repetir contraseña</label>
+              <input class="input" id="reg-pw2" name="password2" type="password" autocomplete="new-password" minlength="8" placeholder="••••••••" required>
+            </div>
+          </div>
+          <label class="check">
+            <input type="checkbox" name="mayorEdad" value="true">
+            <span>Soy mayor de edad</span>
+          </label>
+          <label class="check">
+            <input type="checkbox" name="aceptaBases" value="true" required>
+            <span>Acepto las <a class="link" href="bases.html" th:href="@{/bases}" target="_blank" rel="noopener">bases del concurso</a> y el <a class="link" href="privacidad.html" th:href="@{/privacidad}" target="_blank" rel="noopener">aviso de privacidad</a>.</span>
+          </label>
+          <button class="btn btn--green btn--block" type="submit">Crear cuenta</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="../static/js/main.js" th:src="@{/js/main.js}" defer></script>
+</body>
+</html>
